@@ -34,9 +34,9 @@
         <button id="uploadEpub" type="button">↑ Upload EPUB</button>
         <input id="epubFiles" type="file" accept=".epub,application/epub+zip" multiple hidden aria-label="Choose EPUB files">
       </div>
-      <p class="upload-privacy">Only books you upload appear here. Uploads stay with this local server session; reading progress and notes stay in your browser.</p>
+      <p class="upload-privacy">Your books stay on your device. Nothing is uploaded to a server. Reopen a file after refreshing to resume your saved progress and notes.</p>
       <div id="uploadFeedback" class="upload-feedback" hidden><p id="uploadStatus" role="status" aria-live="polite"></p><ul id="uploadResults"></ul></div>
-      <section id="uploadedSection" hidden aria-label="Uploaded books"><div class="results-heading"><div><p class="eyebrow">This session</p><h2>Your uploaded books</h2></div><p id="resultCount" aria-live="polite"></p></div><div id="bookGrid" class="uploaded-books"></div></section>
+      <section id="uploadedSection" hidden aria-label="Uploaded books"><div class="results-heading"><div><p class="eyebrow">This tab</p><h2>Your uploaded books</h2></div><p id="resultCount" aria-live="polite"></p></div><div id="bookGrid" class="uploaded-books"></div></section>
     </section>
   </main>
 
@@ -160,6 +160,8 @@
     </div>
     <p id="readerStatus" class="reader-status" role="status"></p>
   </dialog>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="browser-epub.js"></script>
   <script src="narration.js"></script>
   <script src="translation.js?v=4"></script>
   <script src="reader.js?v=3"></script>

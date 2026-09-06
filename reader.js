@@ -215,9 +215,7 @@
     setSidebar(''); applyPreferences(false); setDisabled(true);
     reader.showModal(); document.body.style.overflow = 'hidden'; $('#leaveReader').focus();
     try {
-      const response = await fetch(`/api/book/${encodeURIComponent(book.id)}`);
-      if (!response.ok) { const error = await response.json().catch(() => ({})); throw new Error(error.error || 'Could not open this EPUB.'); }
-      const data = await response.json();
+      const data = await window.ShelfBooks.read(book.id);
       if (current !== request) return;
       chapters = data.chapters;
       if (!chapters?.length) throw new Error('No readable chapters were found.');
@@ -229,7 +227,7 @@
     } catch (error) {
       if (current !== request) return;
       $('#chapterEyebrow').textContent = 'Unable to open book'; $('#chapterLabel').textContent = 'Let’s reconnect your shelf.';
-      content.innerHTML = `<p class="reader-error">${escape(error.message)}</p><p class="reader-error">Start Shelf with <code>python3 scripts/serve.py</code>, then open <a href="http://127.0.0.1:3000">127.0.0.1:3000</a>. Upload your EPUB again if the server has restarted.</p>`;
+      content.innerHTML = `<p class="reader-error">${escape(error.message)}</p><p class="reader-error">Close the reader and choose your EPUB again. Files stay in this browser tab and must be reopened after a refresh.</p>`;
     }
   }
   function setDisabled(disabled) {
@@ -537,9 +535,8 @@
   $('#exportEpub').addEventListener('click', async e => {
     const button = e.currentTarget, exportBook = book; button.disabled = true; button.textContent = 'Creating your edition…'; save();
     try {
-      const response = await fetch(`/api/export/${exportBook.id}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({preferences: personal.preferences, annotations: personal.annotations})});
-      if (!response.ok) { const data = await response.json(); throw new Error(data.error || 'Export failed.'); }
-      const blob = await response.blob(), url = URL.createObjectURL(blob), link = document.createElement('a');
+      const blob = await window.ShelfBooks.exportBook(exportBook.id, {preferences: personal.preferences, annotations: personal.annotations});
+      const url = URL.createObjectURL(blob), link = document.createElement('a');
       link.href = url; link.download = `${exportBook.title.replace(/[\\/:*?"<>|]/g, '')} — My edition.epub`; document.body.append(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url), 60000);
       status('Your personal EPUB is ready. Your browser has started the download.');
     } catch(error) { status(`Could not create EPUB: ${error.message}`, true); }

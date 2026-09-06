@@ -1,4 +1,4 @@
-/* The viewer only knows publications explicitly uploaded to this server session. */
+/* EPUB files stay in this browser tab; no publication data is uploaded. */
 (() => {
   'use strict';
   const $ = selector => document.querySelector(selector);
@@ -30,9 +30,7 @@
         $('#uploadStatus').textContent = `Opening ${index + 1} of ${files.length}: ${file.name}`;
         try {
           if (!/\.epub$/i.test(file.name) || !file.size || file.size > 100 * 1024 * 1024) throw new Error('Choose a non-empty .epub file up to 100 MB.');
-          const response = await fetch('/api/upload', {method:'POST', headers:{'Content-Type':'application/epub+zip', 'X-Filename':encodeURIComponent(file.name)}, body:file});
-          const data = await response.json();
-          if (!response.ok || !data.book) throw new Error(data.error || 'Could not open this EPUB.');
+          const data = await ShelfBooks.importFile(file);
           books = data.books; added++; singleBook = data.book; render();
           row.textContent = `${data.book.title} — ${data.duplicate ? 'already uploaded' : 'ready to read'}.`;
         } catch (error) {
@@ -59,11 +57,5 @@
   });
   try { document.body.classList.toggle('dark', localStorage.getItem('shelf-theme') === 'dark'); } catch {}
   window.addEventListener('shelf-progress', render);
-  fetch('/api/library').then(response => {
-    if (!response.ok) throw new Error('Viewer server unavailable');
-    return response.json();
-  }).then(data => { books = data.books || []; render(); }).catch(() => {
-    $('#uploadFeedback').hidden = false;
-    $('#uploadStatus').textContent = 'Start the viewer with python3 scripts/serve.py, then open http://127.0.0.1:3000.';
-  });
+  render();
 })();

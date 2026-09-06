@@ -1,6 +1,5 @@
 # Publications and generated/personal data never belong in source control.
-*.epub
-*.EPUB
+*.[eE][pP][uU][bB]
 *.zip
 *.pdf
 uploads/
