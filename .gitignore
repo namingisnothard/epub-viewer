@@ -1,0 +1,16 @@
+# Publications and generated/personal data never belong in source control.
+*.epub
+*.EPUB
+*.zip
+*.pdf
+uploads/
+data/
+assets/covers/
+library-data.js
+external-metadata.json
+.env
+.env.*
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/

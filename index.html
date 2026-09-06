@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#163c34">
+  <title>Shelf — A little room for reading</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="reader.css?v=bilingual-4">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Shelf home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>Shelf</span>
+    </a>
+    <button class="icon-button" id="themeButton" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span aria-hidden="true">☼</span>
+    </button>
+  </header>
+
+  <main class="upload-home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Your EPUB reading room</p>
+        <h1>A little room<br><em>for reading.</em></h1>
+        <p class="hero-intro">Bring your own book. Settle into a quiet page, read in English and Chinese, and keep your thoughts close.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="arch arch-one"></div><div class="arch arch-two"></div><div class="bird">⌁</div></div>
+    </section>
+    <section class="library" aria-label="Upload an EPUB">
+      <div id="uploadZone" class="upload-zone">
+        <div><strong>Your next page starts here.</strong><p>Drop an EPUB here or choose from your device. EPUB files only, up to 100 MB each.</p></div>
+        <button id="uploadEpub" type="button">↑ Upload EPUB</button>
+        <input id="epubFiles" type="file" accept=".epub,application/epub+zip" multiple hidden aria-label="Choose EPUB files">
+      </div>
+      <p class="upload-privacy">Only books you upload appear here. Uploads stay with this local server session; reading progress and notes stay in your browser.</p>
+      <div id="uploadFeedback" class="upload-feedback" hidden><p id="uploadStatus" role="status" aria-live="polite"></p><ul id="uploadResults"></ul></div>
+      <section id="uploadedSection" hidden aria-label="Uploaded books"><div class="results-heading"><div><p class="eyebrow">This session</p><h2>Your uploaded books</h2></div><p id="resultCount" aria-live="polite"></p></div><div id="bookGrid" class="uploaded-books"></div></section>
+    </section>
+  </main>
+
+  <dialog id="reader" class="reader" aria-label="Book reader">
+    <header class="reader-top">
+      <button id="leaveReader" class="reader-back" type="button">← <span>Shelf</span></button>
+      <div class="reader-book-heading"><strong id="readerTitle"></strong><span id="readerAuthor"></span></div>
+      <div class="reader-tools">
+        <button id="contentsToggle" type="button" aria-label="Table of contents" aria-expanded="false">☰</button>
+        <button id="bookmarkButton" type="button" aria-label="Bookmark this location" aria-pressed="false"><svg width="18" height="20" viewBox="0 0 18 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 2h10v16l-5-3-5 3Z"/></svg></button>
+        <button id="notebookToggle" type="button" aria-label="Open notebook" aria-expanded="false">✎</button>
+        <button id="appearanceToggle" type="button" aria-label="Reading appearance" aria-expanded="false">Aa</button>
+        <button id="translationToggle" type="button" aria-label="中英双语翻译" aria-expanded="false">中/EN</button>
+        <button id="speechToggle" type="button" aria-label="自动朗读" aria-expanded="false">♫</button>
+        <button id="focusToggle" type="button" aria-label="Enter focus mode">⛶</button>
+      </div>
+    </header>
+    <div class="reader-workspace">
+      <aside id="contentsPanel" class="reader-sidebar contents-sidebar" hidden aria-label="Contents">
+        <div class="sidebar-heading"><h2>Contents</h2><button data-close-sidebar type="button" aria-label="Close contents">×</button></div>
+        <div id="chapterList"></div>
+      </aside>
+      <div id="readingViewport" class="reading-viewport" tabindex="0" aria-label="Reading area">
+        <div id="readingStage" class="reading-stage">
+        <div class="scene-masthead" aria-hidden="true"><span>THE SHELF REVIEW</span><small>A private edition · A world between the lines</small></div>
+        <div class="chapter-heading"><span id="chapterEyebrow"></span><p id="chapterLabel"></p></div>
+      <section id="translationPanel" class="translation-toolbar" hidden aria-label="中英双语翻译">
+        <div class="sidebar-heading"><div><p class="eyebrow">Translate & read</p><h2>中英双语</h2></div><button id="translationClose" type="button" aria-label="收起翻译设置">×</button></div>
+        <p class="sidebar-intro">左栏英文，右栏中文。两种语言，各自连贯阅读。</p>
+        <label class="setting">翻译方向 · Direction<select id="translationDirection"><option value="en-zh">English → 简体中文</option><option value="zh-en">中文 → English</option></select></label>
+        <div class="translation-actions"><button id="translateChapter" class="primary-action" type="button">翻译本章</button><button id="translationStop" class="secondary-action" type="button" disabled>停止</button></div>
+        <p id="translationStatus" class="column-hint" role="status"></p>
+        <p class="column-hint">使用浏览器内置翻译，首次使用可能需要下载语言包。译文仅供阅读参考，本次阅读中保留，不包含在 EPUB 导出中。</p>
+        <button id="translationOriginal" class="translation-original-button" type="button">仅看原文</button>
+      </section>
+        <div id="pageWindow" class="page-window"><article id="readingContent" class="reading-content"></article></div>
+        <div class="chapter-end"><span>✦</span><button id="nextChapterInline" type="button">Next chapter →</button></div>
+        <div id="pageNavigation" class="page-navigation" hidden><button id="previousPage" type="button" aria-label="Previous reading page">← 上一页</button><span id="pageIndicator" aria-live="polite"></span><button id="nextPage" type="button" aria-label="Next reading page">下一页 →</button></div>
+        <div class="device-signature" aria-hidden="true">S H E L F · E - I N K</div>
+        </div>
+      </div>
+      <aside id="speechPanel" class="reader-sidebar speech-sidebar" hidden aria-label="朗读设置">
+        <div class="sidebar-heading"><div><p class="eyebrow">Listen & follow</p><h2>听见文字</h2></div><button data-close-sidebar type="button" aria-label="关闭朗读设置">×</button></div>
+        <p class="sidebar-intro">从正在阅读的位置开始，让声音带你往下读。</p>
+        <label class="setting">声音 · Voice<select id="speechVoice" aria-label="朗读声音"><option value="">自动匹配书籍语言</option></select></label>
+        <label class="setting">语速 <output id="speechRateOutput">1×</output><input id="speechRate" aria-label="朗读语速" type="range" min="0.5" max="3" step="0.1" value="1"></label>
+        <div class="speech-actions"><button id="speechPlay" class="primary-action" type="button">开始朗读</button><button id="speechStop" class="secondary-action" type="button" disabled>停止</button></div>
+        <p id="speechStatus" class="speech-status" role="status">准备就绪</p>
+        <div class="speech-location"><p id="speechPosition">尚未开始</p><p id="speechSentence" class="speech-sentence"></p><p>当前单词：<strong id="speechWord">—</strong></p></div>
+        <div class="speech-navigation"><button id="speechPrevSentence" type="button">← 上一句</button><button id="speechNextSentence" type="button">下一句 →</button><button id="speechPrevWord" type="button">← 上一词</button><button id="speechNextWord" type="button">下一词 →</button></div>
+        <button id="speechPick" class="secondary-action" type="button" aria-pressed="false">点选正文定位</button>
+        <p class="column-hint speech-hint">开启后，点击句子或单词即可从该处朗读。也可先选中文字，再点“从选区朗读”。</p>
+        <label class="canvas-full-setting"><input id="speechFollow" type="checkbox" checked>跟随朗读，自动滚动／翻页</label>
+        <label class="canvas-full-setting"><input id="speechContinue" type="checkbox" checked>自动续读下一章</label>
+        <p class="column-hint">声音由浏览器和系统提供。支持逐词事件的声音会同步标出单词，其余按句定位。关闭阅读器即停止。</p>
+      </aside>
+      <aside id="appearancePanel" class="reader-sidebar appearance-sidebar" hidden aria-label="Appearance settings">
+        <div class="sidebar-heading"><div><p class="eyebrow">Make it yours</p><h2>Reading room</h2></div><button data-close-sidebar type="button" aria-label="Close appearance">×</button></div>
+        <p class="sidebar-intro">A little space. The right light. Your kind of type.</p>
+        <fieldset class="experience-options"><legend>阅读风格 · Reading experience</legend>
+          <button type="button" data-experience="quiet" aria-pressed="true"><span class="scene-preview preview-quiet" aria-hidden="true">Aa</span><strong>静读</strong><small>Quiet</small></button>
+          <button type="button" data-experience="newspaper" aria-pressed="false"><span class="scene-preview preview-news" aria-hidden="true">THE DAILY<i></i></span><strong>看报纸</strong><small>Newspaper</small></button>
+          <button type="button" data-experience="leather" aria-pressed="false"><span class="scene-preview preview-leather" aria-hidden="true"><i></i><i></i></span><strong>牛皮书</strong><small>Leather book</small></button>
+          <button type="button" data-experience="kindle" aria-pressed="false"><span class="scene-preview preview-kindle" aria-hidden="true">Aa</span><strong>Kindle 墨水屏</strong><small>E-ink · 黑白阅读</small></button>
+        </fieldset>
+        <fieldset class="column-options"><legend>分栏 · Columns</legend><button type="button" data-columns="1" aria-pressed="true">▯ 单栏</button><button type="button" data-columns="2" aria-pressed="false">▯▯ 双栏</button><button type="button" data-columns="3" aria-pressed="false">▯▯▯ 三栏</button></fieldset>
+        <p id="columnHint" class="column-hint"></p>
+        <label class="setting canvas-setting">画布宽度 · Canvas <output id="canvasWidthOutput" for="canvasWidthSetting"></output><input aria-label="画布宽度" aria-describedby="canvasWidthHint" id="canvasWidthSetting" type="range" min="480" max="2400" step="20" value="960"></label>
+        <label class="canvas-full-setting"><input id="canvasFullSetting" type="checkbox">铺满可用宽度</label>
+        <p id="canvasWidthHint" class="column-hint">调整整张纸页或设备外框，正文宽度可单独设置。小屏幕会自动适配。</p>
+        <label class="setting">阅读方式 · Navigation<select id="flowSetting" data-pref="flow"><option value="scroll">连续滚动 · Scroll</option><option value="pages">分页翻阅 · Pages</option></select></label>
+        <label class="motion-setting"><input id="motionSetting" type="checkbox" checked>翻页动效 · Page-turn animation</label>
+        <fieldset class="paper-options"><legend>纸张材质 · Paper</legend>
+          <button type="button" data-paper="smooth" aria-pressed="true"><span class="paper-swatch swatch-smooth" aria-hidden="true">Aa</span><strong>光面纸</strong><small>平滑 · 清爽</small></button>
+          <button type="button" data-paper="kraft" aria-pressed="false"><span class="paper-swatch swatch-kraft" aria-hidden="true">Aa</span><strong>牛皮纸</strong><small>暖棕 · 植物纤维</small></button>
+          <button type="button" data-paper="cotton" aria-pressed="false"><span class="paper-swatch swatch-cotton" aria-hidden="true">Aa</span><strong>棉纤维纸</strong><small>柔白 · 自然絮纹</small></button>
+          <button type="button" data-paper="grain" aria-pressed="false"><span class="paper-swatch swatch-grain" aria-hidden="true">Aa</span><strong>细砂纸</strong><small>米灰 · 细密颗粒</small></button>
+        </fieldset>
+        <label class="setting">纹理强度 <output id="textureOutput"></output><input aria-label="纹理强度" id="textureSetting" data-pref="texture" type="range" min="0" max="100" step="5" value="55" disabled></label>
+        <p class="column-hint">0% 只保留纸色。Kindle 墨水屏使用黑白底色和灰度纹理；夜间保留深色底。</p>
+        <fieldset class="theme-options"><legend>底色 · Page color</legend>
+          <button type="button" data-reader-theme="paper" aria-label="Paper theme">Aa<span>Paper</span></button>
+          <button type="button" data-reader-theme="white" aria-label="White theme">Aa<span>White</span></button>
+          <button type="button" data-reader-theme="sepia" aria-label="Sepia theme">Aa<span>Sepia</span></button>
+          <button type="button" data-reader-theme="night" aria-label="Night theme">Aa<span>Night</span></button>
+        </fieldset>
+        <label class="setting">Typeface<select id="fontSetting" data-pref="font"><option value="literary">Literary · Georgia</option><option value="classic">Classic · Palatino</option><option value="clean">Clean · Sans serif</option><option value="mono">Typewriter · Monospace</option></select></label>
+        <label class="setting">Text size <output id="sizeOutput"></output><input aria-label="Text size" id="sizeSetting" data-pref="size" type="range" min="14" max="32" step="1"></label>
+        <label class="setting">Line height <output id="lineOutput"></output><input aria-label="Line height" id="lineSetting" data-pref="line" type="range" min="1.3" max="2.4" step="0.1"></label>
+        <label class="setting">正文总宽 · Text width <output id="widthOutput"></output><input aria-label="Reading width" id="widthSetting" data-pref="width" type="range" min="440" max="1600" step="20"></label>
+        <label class="setting">Paragraph space <output id="paragraphOutput"></output><input aria-label="Paragraph space" id="paragraphSetting" data-pref="paragraph" type="range" min="0.3" max="2" step="0.1"></label>
+        <label class="setting">Letter spacing <output id="spacingOutput"></output><input aria-label="Letter spacing" id="spacingSetting" data-pref="spacing" type="range" min="0" max="2" step="0.1"></label>
+        <label class="setting">Alignment<select id="alignSetting" data-pref="align"><option value="left">Left aligned</option><option value="justify">Justified</option></select></label>
+        <button id="resetAppearance" class="secondary-action" type="button">Reset appearance</button>
+        <div class="edition-box"><p class="eyebrow">Your personal edition</p><p>Take this style, your notes, bookmarks, and sketches with you.</p><button id="exportEpub" class="primary-action" type="button">↓ Create my EPUB</button><small>Saved as a new file. EPUB apps may override page styles.</small></div>
+      </aside>
+      <aside id="notebookPanel" class="reader-sidebar notebook-sidebar" hidden aria-label="Reading notebook">
+        <div class="sidebar-heading"><div><p class="eyebrow">Between the lines</p><h2>Your notebook</h2></div><button data-close-sidebar type="button" aria-label="Close notebook">×</button></div>
+        <p class="sidebar-intro">Select text to highlight, underline, strike through, or comment. Tap a saved mark to change or delete it.</p>
+        <div class="notebook-tabs"><button type="button" id="writeTab" aria-pressed="true">Write</button><button type="button" id="drawTab" aria-pressed="false">Doodle</button></div>
+        <div id="noteComposer"><blockquote id="selectedQuote" hidden></blockquote><button id="clearQuote" type="button" hidden>Remove passage</button><label class="sr-only" for="noteText">Your comment</label><textarea id="noteText" placeholder="What stays with you?" rows="4" maxlength="10000"></textarea><button id="saveNote" class="primary-action" type="button">Save note</button><button id="cancelEdit" class="secondary-action" type="button" hidden>Cancel editing</button></div>
+        <div id="doodleComposer" hidden><p class="drawing-caption">A sketch for this place in the book.</p><canvas id="doodleCanvas" width="600" height="300" aria-label="Doodle canvas. Draw with your pointer or use Write for a text note."></canvas><div class="doodle-tools"><label>Ink <input id="doodleColor" type="color" value="#284c3c"></label><button id="undoDoodle" type="button">Undo</button><button id="clearDoodle" type="button">Clear</button></div><button id="saveDoodle" class="primary-action" type="button">Save doodle</button></div>
+        <div class="notebook-list-heading"><h3>Collected thoughts</h3><span id="annotationCount">0</span></div>
+        <div id="annotationList"></div><p class="local-note">Saved in this browser, per book. Export your EPUB to keep a portable copy.</p>
+      </aside>
+    </div>
+    <footer class="reader-bottom"><button id="previousChapter" type="button" aria-label="Previous chapter">← <span>Previous</span></button><div class="reader-progress"><label for="bookProgress" id="progressLabel">Reading progress</label><input id="bookProgress" type="range" min="0" max="1000" value="0" aria-label="Book progress"></div><button id="nextChapter" type="button" aria-label="Next chapter"><span>Next</span> →</button></footer>
+    <button id="exitFocus" class="exit-focus" type="button" hidden>⛶ Exit focus <kbd>Esc</kbd></button>
+    <div id="selectionToolbar" class="selection-toolbar" role="group" aria-label="Passage annotations" hidden>
+      <span id="markToolbarLabel">Mark this passage</span>
+      <button id="translateSelection" type="button">翻译选区</button>
+      <button id="readSelection" type="button">从选区朗读</button>
+      <label id="overlappingMarks" hidden>Mark <select id="activeMarkSelect" aria-label="Choose overlapping annotation"></select></label>
+      <button data-mark-style="highlight" type="button" aria-pressed="false">Highlight</button>
+      <button data-mark-style="underline" type="button" aria-pressed="false"><u>Underline</u></button>
+      <button data-mark-style="wavy" type="button" aria-pressed="false"><span class="wavy-label">Wavy</span></button>
+      <button data-mark-style="strikethrough" type="button" aria-pressed="false"><s>Strike</s></button>
+      <button id="commentSelection" type="button">Comment</button>
+      <button id="deleteMark" type="button" hidden>Delete mark</button>
+      <button id="dismissMarkToolbar" type="button" aria-label="Close annotation controls">×</button>
+    </div>
+    <p id="readerStatus" class="reader-status" role="status"></p>
+  </dialog>
+  <script src="narration.js"></script>
+  <script src="translation.js?v=4"></script>
+  <script src="reader.js?v=3"></script>
+  <script src="app.js"></script>
+</body>
+</html>
